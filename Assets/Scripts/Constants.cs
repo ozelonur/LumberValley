@@ -10,5 +10,9 @@ public static class Constants
 
     // Animations
     public static string RUN_ANIM = "Run";
+    public static string CUT_ANIM = "Cut";
+
+    // Invokes
+    public static string STOP_CUT_ANIM = "StopCutAnim";
 
 }

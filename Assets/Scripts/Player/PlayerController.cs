@@ -33,9 +33,8 @@ public class PlayerController : MonoBehaviour
         currentGameMode = GameMode.Start;
     }
 
-    // Update is called once per frame
-    void Update()
+    private void OnTriggerEnter(Collider other)
     {
-        
+        other.GetComponent<IProperty>()?.Interact();
     }
 }
