@@ -8,9 +8,11 @@ public class ObjectManager : MonoBehaviour
 
     [SerializeField] private Camera orthographicCamera;
     [SerializeField] private DynamicJoystick dynamicJoystick;
+    [SerializeField] private GameObject woodPrefab;
 
     public Camera OrthographicCamera { get => orthographicCamera; set => orthographicCamera = value; }
     public DynamicJoystick DynamicJoystick { get => dynamicJoystick; set => dynamicJoystick = value; }
+    public GameObject WoodPrefab { get => woodPrefab; set => woodPrefab = value; }
 
     private void Awake()
     {

@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
+    public static PlayerMovement Instance = null;
     private ObjectManager objectManager;
     private PlayerSettings playerSettings;
     private PlayerController player;
@@ -13,15 +14,28 @@ public class PlayerMovement : MonoBehaviour
 
     private Vector3 firstPosition;
     private Vector3 mousePosition;
-    private Vector3 difference;
 
+    private bool canRun = false;
+
+    private Quaternion targetRotation;
+
+    public bool CanRun { get => canRun; set => canRun = value; }
+    public Rigidbody PlayerRigidBody { get => playerRigidBody; set => playerRigidBody = value; }
+
+    private void Awake()
+    {
+        if (Instance == null)
+        {
+            Instance = this;
+        }
+    }
     private void Start()
     {
         objectManager = ObjectManager.Instance;
         playerSettings = PlayerController.Instance.PlayerSettings;
         player = PlayerController.Instance;
 
-        playerRigidBody = GetComponent<Rigidbody>();
+        PlayerRigidBody = GetComponent<Rigidbody>();
         playerAnimator = GetComponent<Animator>();
     }
 
@@ -32,45 +46,47 @@ public class PlayerMovement : MonoBehaviour
         {
             MouseDown(Input.mousePosition);
         }
-        else if (Input.GetMouseButton(0))
-        {
-            MouseHold(Input.mousePosition);
-        }
         else if (Input.GetMouseButtonUp(0))
         {
             MouseUp();
         }
     }
-
     private void FixedUpdate()
     {
-        
         if (player.CurrentGameMode == GameMode.Playing)
         {
-            playerRigidBody.velocity = transform.forward * playerSettings.Sensivity;
-            transform.Rotate(0, objectManager.DynamicJoystick.Horizontal * 2, 0);
-
+            if (CanRun)
+            {
+                PlayerRigidBody.velocity = transform.forward * playerSettings.Sensivity;
+            }
+            var input = new Vector3(objectManager.DynamicJoystick.Horizontal, 0, objectManager.DynamicJoystick.Vertical);
+            if (input != Vector3.zero)
+            {
+                targetRotation = Quaternion.LookRotation(input);
+            }
+            transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, playerSettings.RotationSpeed * Time.deltaTime);
         }
     }
 
     private void MouseDown(Vector3 inputPosition)
     {
-        playerAnimator.SetBool(Constants.RUN_ANIM, true);
-        //mousePosition = objectManager.OrthographicCamera.ScreenToWorldPoint(inputPosition);
-        //firstPosition = mousePosition;
+        if (player.CurrentGameMode == GameMode.Playing)
+        {
+            playerAnimator.SetBool(Constants.RUN_ANIM, true);
+            canRun = true;
+
+        }
     }
 
     private void MouseUp()
     {
-        playerAnimator.SetBool(Constants.RUN_ANIM, false);
-        //difference = Vector3.zero;
+        if (player.CurrentGameMode == GameMode.Playing)
+        {
+            canRun = false;
+            PlayerRigidBody.velocity = Vector3.zero;
+            playerAnimator.SetBool(Constants.RUN_ANIM, false);
+        }
     }
 
-    private void MouseHold(Vector3 inputPosition)
-    {
-        //mousePosition = objectManager.OrthographicCamera.ScreenToWorldPoint(inputPosition);
-        //difference = mousePosition - firstPosition;
-        //difference *= playerSettings.Sensivity;
-    }
 
 }

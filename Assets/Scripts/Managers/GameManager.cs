@@ -8,7 +8,13 @@ public class GameManager : MonoBehaviour
 
     private CanvasManager canvasManager;
     private PlayerController player;
+    private ObjectManager objectManager;
 
+
+    private int counter = 0;
+    private int woodCount = 0;
+    public int Counter { get => counter; set => counter = value; }
+    public int WoodCount { get => woodCount; set => woodCount = value; }
 
     private void Awake()
     {
@@ -22,6 +28,7 @@ public class GameManager : MonoBehaviour
     {
         canvasManager = CanvasManager.Instance;
         player = PlayerController.Instance;
+        objectManager = ObjectManager.Instance;
 
         canvasManager.TapText.text = Constants.TAP_TO_PLAY;
     }
@@ -36,7 +43,8 @@ public class GameManager : MonoBehaviour
     {
         if (player.CurrentGameMode == GameMode.Start)
         {
-            canvasManager.TapPanel.SetActive(false);
+            canvasManager.TapText.gameObject.SetActive(false);
+            objectManager.DynamicJoystick.transform.SetAsLastSibling();
             player.CurrentGameMode = GameMode.Playing;
         }
     }

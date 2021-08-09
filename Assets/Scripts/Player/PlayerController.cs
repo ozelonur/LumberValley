@@ -17,8 +17,11 @@ public class PlayerController : MonoBehaviour
 
     public PlayerSettings PlayerSettings { get => playerSettings; }
     public GameMode CurrentGameMode { get => currentGameMode; set => currentGameMode = value; }
+    public Transform[] StackPositions { get => stackPositions; set => stackPositions = value; }
 
     private GameMode currentGameMode;
+
+    [SerializeField] private Transform[]  stackPositions;
 
     private void Awake()
     {
@@ -33,9 +36,8 @@ public class PlayerController : MonoBehaviour
         currentGameMode = GameMode.Start;
     }
 
-    // Update is called once per frame
-    void Update()
+    private void OnTriggerEnter(Collider other)
     {
-        
+        other.GetComponent<IProperty>()?.Interact();
     }
 }

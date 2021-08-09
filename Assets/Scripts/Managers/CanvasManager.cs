@@ -7,11 +7,14 @@ public class CanvasManager : MonoBehaviour
 {
     public static CanvasManager Instance = null;
 
+    private GameManager gameManager;
     [SerializeField] private GameObject tapPanel;
     [SerializeField] private Text tapText;
+    [SerializeField] private Text woodCountText;
 
     public Text TapText { get => tapText; set => tapText = value; }
     public GameObject TapPanel { get => tapPanel; set => tapPanel = value; }
+    public Text WoodCountText { get => woodCountText; set => woodCountText = value; }
 
     private void Awake()
     {
@@ -19,5 +22,15 @@ public class CanvasManager : MonoBehaviour
         {
             Instance = this;
         }
+    }
+
+    private void Start()
+    {
+        gameManager = GameManager.Instance;
+        UpdateWoodCount();
+    }
+    public void UpdateWoodCount()
+    {
+        woodCountText.text = gameManager.WoodCount.ToString();
     }
 }
