@@ -12,6 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9961fa8e378052446992cc1ed85add14, type: 3}
   m_Name: PlayerSetting
   m_EditorClassIdentifier: 
-  sensivity: 5
+  sensivity: 3
   forwardSpeed: 3
-  rotationSpeed: 150
+  rotationSpeed: 200

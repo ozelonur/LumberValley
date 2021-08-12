@@ -21,6 +21,7 @@ public class PlayerMovement : MonoBehaviour
 
     public bool CanRun { get => canRun; set => canRun = value; }
     public Rigidbody PlayerRigidBody { get => playerRigidBody; set => playerRigidBody = value; }
+    public Animator PlayerAnimator { get => playerAnimator; set => playerAnimator = value; }
 
     private void Awake()
     {
@@ -36,7 +37,7 @@ public class PlayerMovement : MonoBehaviour
         player = PlayerController.Instance;
 
         PlayerRigidBody = GetComponent<Rigidbody>();
-        playerAnimator = GetComponent<Animator>();
+        PlayerAnimator = GetComponent<Animator>();
     }
 
     private void Update()
@@ -72,7 +73,7 @@ public class PlayerMovement : MonoBehaviour
     {
         if (player.CurrentGameMode == GameMode.Playing)
         {
-            playerAnimator.SetBool(Constants.RUN_ANIM, true);
+            PlayerAnimator.SetBool(Constants.RUN_ANIM, true);
             canRun = true;
 
         }
@@ -84,7 +85,7 @@ public class PlayerMovement : MonoBehaviour
         {
             canRun = false;
             PlayerRigidBody.velocity = Vector3.zero;
-            playerAnimator.SetBool(Constants.RUN_ANIM, false);
+            PlayerAnimator.SetBool(Constants.RUN_ANIM, false);
         }
     }
 

@@ -1,10 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using DG.Tweening;
 public class TreeController : MonoBehaviour
 {
-    private Animator playerAnimator;
-
     private PlayerMovement playerMovement;
     private PlayerController player;
     private GameManager gameManager;
@@ -19,9 +18,11 @@ public class TreeController : MonoBehaviour
     private float distance = 0;
 
     private BoxCollider boxCollider;
+    private Animator playerAnimator;
 
     private Vector3 startColliderCenter;
     private Vector3 startPosition;
+    private Vector3 startScale;
 
     private void Start()
     {
@@ -31,9 +32,11 @@ public class TreeController : MonoBehaviour
         canvasManager = CanvasManager.Instance;
         woodPrefab = ObjectManager.Instance.WoodPrefab;
         player = PlayerController.Instance;
+
         boxCollider = GetComponent<BoxCollider>();
         startColliderCenter = boxCollider.center;
         startPosition = transform.position;
+        startScale = transform.localScale;
     }
 
     private void LateUpdate()
@@ -48,7 +51,7 @@ public class TreeController : MonoBehaviour
 
     private void Cut()
     {
-        Vector3 targetPosition = new Vector3(0, transform.localRotation.y, 0);
+        Vector3 targetPosition = new Vector3(transform.position.x, 0, transform.position.z);
         player.transform.LookAt(targetPosition);
         playerMovement.PlayerRigidBody.velocity = Vector3.zero;
         playerMovement.CanRun = false;
@@ -56,47 +59,65 @@ public class TreeController : MonoBehaviour
         playerAnimator.SetBool(Constants.CUT_ANIM, true);
         Invoke(Constants.STOP_CUT_ANIM, 1f);
     }
-
     private void StopCutAnim()
     {
-        print(count);
-        gameManager.WoodCount++;
-        canvasManager.UpdateWoodCount();
+        StartCoroutine(WoodenMovement());
         playerAnimator.SetBool(Constants.CUT_ANIM, false);
-        transform.GetChild(count).GetComponent<MeshRenderer>().enabled = false;
         canCut = false;
         count++;
         boxCollider.center = boxCollider.center + new Vector3(0, 0.018f, 0);
         if (count >= 4)
         {
-            boxCollider.enabled = false; 
+            boxCollider.enabled = false;
+            transform.position = new Vector3(100, 100, 100);
+            transform.localScale = new Vector3(0, 0, 0);
             Invoke(Constants.SPAWN_AGAIN, 5);
         }
-
-        if (gameManager.Counter <= 3)
+    }
+   
+    private IEnumerator WoodenMovement()
+    {
+        int rand = Random.Range(2,5);
+        GameObject[] woods = new GameObject[rand];
+        for (int i = 0; i < rand; i++)
         {
-            GameObject wood = Instantiate(woodPrefab, player.StackPositions[gameManager.Counter]);
-            wood.transform.localPosition += Vector3.up * (player.StackPositions[gameManager.Counter].childCount * .012f);
+            woods[i] = Instantiate(woodPrefab, transform.position + new Vector3(0, Random.Range(.8f, 1.2f), 0), Quaternion.identity);
+            woods[i].GetComponent<Rigidbody>().AddForce(Random.insideUnitSphere * 500, ForceMode.Force);
+
+        }
+
+        yield return new WaitForSeconds(.5f);
+
+        for (int i = 0; i < rand; i++)
+        {
+            if (gameManager.Counter > 3)
+            {
+                gameManager.Counter = 0;
+
+            }
+
+            woods[i].transform.parent = player.StackPositions[gameManager.Counter];
+
+            woods[i].transform.localScale = new Vector3(.1f, .02f, .1f);
+            woods[i].transform.DOLocalMove(Vector3.up * (player.StackPositions[gameManager.Counter].childCount * .021f), Random.Range(.1f, .3f)).SetEase(Ease.InOutSine);
+            woods[i].transform.localEulerAngles = Random.insideUnitSphere * 90;
+            woods[i].transform.localEulerAngles = new Vector3(0, 0, 0); 
+            Destroy(woods[i].GetComponent<Rigidbody>());
+            Destroy(woods[i].GetComponent<BoxCollider>());
             gameManager.Counter++;
+            gameManager.WoodCount++;
+            canvasManager.UpdateWoodCount();
         }
-        else
-        {
-            gameManager.Counter = 0;
-        }
-
-        
     }
 
     private void SpawnAgain()
     {
-        print("Spawning...");
+        count = 0;
         boxCollider.center = startColliderCenter;
         transform.position = startPosition;
+        transform.DOScale(startScale, 1f);
+      
         boxCollider.enabled = true;
-        for (int i = 0; i < 4; i++)
-        {
-            transform.GetChild(i).GetComponent<MeshRenderer>().enabled = true;
-        }
     }
 
 }
